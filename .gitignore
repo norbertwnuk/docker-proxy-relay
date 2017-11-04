@@ -1,1 +1,3 @@
-config
+.idea
+*.iml
+ntlm_proxy.config

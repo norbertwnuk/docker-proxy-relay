@@ -1,33 +1,45 @@
 docker-proxy-relay
 ==================
 
-A docker container to forward traffic to an HTTP proxy relay.
-
-It uses [redsocks](https://github.com/darkk/redsocks) to forward requests to a proxy. [go-any-proxy](https://github.com/ryanchapman/go-any-proxy) may be an alternative.
+A docker container to forward traffic to an NTLM HTTP proxy.
 
 ## Why?
 
-To use docker behind http proxy at work.
+To use linux behind http proxy at work.
 
-1. start a docker container with cntlm and redsocks
-2. set up an iptable rule to redirect everything incoming from network interface _docker0_ to the _proxy-relay-container_
+1. start the container with [cntlm](http://cntlm.sourceforge.net/) and [redsocks](https://github.com/darkk/redsocks) inside
+2. set up an iptable rules to redirect traffic to the container
 
 ## How to use it?
 
-Obtain the startup script
+Download / clone the repository to build the container:
 
-    wget https://github.com/kops/docker-proxy-relay/raw/master/docker_proxy.sh
-    chmod +x docker_proxy.sh
+    docker build . -t docker-proxy-relay:1.0
 
-Start the proxy relay and redirect all docker containers outgoing traffic on port 80 to the _proxy-relay-container_
+Create _ntlm_proxy.config_ file with the set of parameters as below:
 
-    ./docker_proxy.sh start <username> <proxy_host>:<proxy_port>
-    <username> <proxy_host>:<proxy_port> password: xxxxxx
+    domain=DOMAIN
+    proxy_host=proxy.company.com
+    proxy_port=8080
+    proxy_user=username
 
-Stop the proxy relay:
+Redirect outgoing HTTP traffic to the container, _iptables.sh_ contains very minimal setup for clean Centos 7 installation:
+
+    ./iptables.sh
+    
+Start the container:
+
+    ./docker_proxy.sh start
+
+To stop the container:
 
     ./docker_proxy.sh stop
+    ./iptables-clean.sh
 
-Get status:
+To get status:
 
     ./docker_proxy.sh status
+
+## Alternatives
+
+[go-any-proxy](https://github.com/ryanchapman/go-any-proxy) may be an alternative.
